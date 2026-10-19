@@ -266,7 +266,7 @@ public:
     const auto start_length = get_value<details::ProgressBarOption::start>().size();
     const auto bar_width = get_value<details::ProgressBarOption::bar_width>();
     const auto end_length = get_value<details::ProgressBarOption::end>().size();
-    const auto terminal_width = terminal_size().second;
+    const auto terminal_width = terminal_size(os).second;
     // prefix + bar_width + postfix should be <= terminal_width
     const int remaining = terminal_width - (prefix_length + start_length + bar_width + end_length + postfix_length);
     if (prefix_length == -1 || postfix_length == -1) {
