@@ -217,12 +217,20 @@ public:
     const auto bar_width = get_value<details::ProgressBarOption::bar_width>();
     const auto end_length = get_value<details::ProgressBarOption::end>().size();
     const auto terminal_width = terminal_size(os).second;
-    // prefix + bar_width + postfix should be <= terminal_width
-    const int remaining = terminal_width - (prefix_length + start_length + bar_width + end_length + postfix_length);
+    // Keep the last terminal column untouched. Some consoles wrap as soon as
+    // it is written, before the following carriage return can move the cursor
+    // back to column zero.
+    const auto writable_width = terminal_width > 0 ? terminal_width - 1 : 0;
+    // prefix + bar_width + postfix should be <= writable_width
+    const auto rendered_width = static_cast<long long>(prefix_length) +
+                                static_cast<long long>(start_length + bar_width +
+                                                       end_length + postfix_length);
+    const auto remaining =
+        static_cast<long long>(writable_width) - rendered_width;
     if (prefix_length == -1 || postfix_length == -1) {
       os << "\r";
     } else if (remaining > 0) {
-      os << std::string(remaining, ' ') << "\r";
+      os << std::string(static_cast<size_t>(remaining), ' ') << "\r";
     } else if (remaining < 0) {
       // Do nothing. Maybe in the future truncate postfix with ...
     }
